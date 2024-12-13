@@ -12,13 +12,16 @@
 with source_data as (
 
    select 
-        `Row ID` ROW_ID,left(`Order Date`,7) MONTH 
-    from read_files('abfss://datalake@pocdatabrickdev.dfs.core.windows.net/bronze')
+        `Row ID` ROW_ID,
+        left(`Order Date`,7) MONTH ,
+        ROW_NUMBER() OVER (PARTITION BY `Row ID` ORDER BY `Order Date` DESC) ROW_NUM
+    from read_files('abfss://datalake@pocdatabrickdev.dfs.core.windows.net/bronze/*')
 
 )
 
 select *
 from source_data
+where ROW_NUM = 1
 
 /*
     Uncomment the line below to remove records with null `id` values
